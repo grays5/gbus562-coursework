@@ -7,4 +7,4 @@ This repository contains my weekly coursework and AI-assisted coding projects fo
 ## Weekly Work
 
 1. Week 1: An AI-coded Connect 4 game built with HTML, CSS, and JavaScript.
-2. Week 2: A Prompt Lab web app for testing AI prompting techniques with the Anthropic API, plus four Wildframe Coffee Roasters prompting exercises (zero-shot, one-shot, few-shot, and chain-of-thought) run in Claude Code and saved in `week-02/runs`, and a writeup in `week-02/writeup.md`.
+2. Week 2: A Prompt Lab web app that calls the Anthropic API, used to run four Wildframe Coffee Roasters prompting exercises (zero-shot, one-shot, few-shot, and chain-of-thought). The Prompt Lab exports are in `week-02/runs` and the writeup is in `week-02/writeup.md`.
