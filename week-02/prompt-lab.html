@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Prompt Lab</title>
+  <style>
+    :root {
+      --bg: #f5f6f8;
+      --panel: #ffffff;
+      --text: #1d2330;
+      --muted: #5f6878;
+      --border: #d8dce3;
+      --accent: #2f5bd3;
+      --accent-text: #ffffff;
+      --you-bg: #e8eefc;
+      --claude-bg: #ffffff;
+      --error-bg: #fdecec;
+      --error-text: #8a1c1c;
+      --notice-bg: #fff6e0;
+      --notice-text: #6b4a00;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #14171c;
+        --panel: #1d2128;
+        --text: #e6e8ec;
+        --muted: #9aa3b2;
+        --border: #343a45;
+        --accent: #6f8ff0;
+        --accent-text: #0d1220;
+        --you-bg: #243052;
+        --claude-bg: #232830;
+        --error-bg: #3a1d1d;
+        --error-text: #f3b4b4;
+        --notice-bg: #3a3018;
+        --notice-text: #f1d9a0;
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      /* 16px+ keeps iPad Safari from zooming in when a field is focused */
+      font-size: 17px;
+      line-height: 1.5;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    .app {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 16px;
+      padding-left: max(16px, env(safe-area-inset-left));
+      padding-right: max(16px, env(safe-area-inset-right));
+      padding-bottom: max(16px, env(safe-area-inset-bottom));
+    }
+
+    header h1 {
+      margin: 8px 0 4px;
+      font-size: 1.6rem;
+    }
+
+    header p {
+      margin: 0 0 16px;
+      color: var(--muted);
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .hint {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin: 6px 0 0;
+    }
+
+    input[type="password"], input[type="text"], textarea {
+      width: 100%;
+      font: inherit;
+      font-size: 17px;
+      color: var(--text);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 88px;
+    }
+
+    input:focus, textarea:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+    }
+
+    .key-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .key-row input { flex: 1; min-width: 0; }
+
+    button {
+      font: inherit;
+      font-size: 16px;
+      font-weight: 600;
+      min-height: 44px; /* comfortable touch target */
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--accent-text);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .model-tag {
+      margin-left: auto;
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-family: ui-monospace, Menlo, monospace;
+    }
+
+    .conversation {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 120px;
+    }
+
+    .empty {
+      color: var(--muted);
+      text-align: center;
+      padding: 24px 8px;
+    }
+
+    .message {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+    }
+
+    .message.you { background: var(--you-bg); }
+    .message.claude { background: var(--claude-bg); }
+    .message.error { background: var(--error-bg); color: var(--error-text); border-color: transparent; }
+    .message.notice { background: var(--notice-bg); color: var(--notice-text); border-color: transparent; }
+
+    .message .role {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .message.error .role, .message.notice .role { color: inherit; }
+
+    .message .body {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-wrap: anywhere;
+    }
+
+    .composer {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .composer-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Prompt Lab</h1>
+      <p>Test prompting techniques with Claude. GBUS 562 &middot; Week 2</p>
+    </header>
+
+    <section class="panel">
+      <label for="apiKey">Anthropic API key</label>
+      <div class="key-row">
+        <input id="apiKey" type="password" placeholder="sk-ant-..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <button id="toggleKey" type="button" aria-controls="apiKey">Show</button>
+      </div>
+      <p class="hint">Paste your key each session. It is kept only in this page's memory and is never saved. Reloading or closing the tab clears it.</p>
+    </section>
+
+    <section class="panel">
+      <label for="systemPrompt">System prompt</label>
+      <textarea id="systemPrompt" rows="3" placeholder="Optional. Example: You are a concise business analyst. Answer in three bullet points."></textarea>
+      <p class="hint">Sent with every message in this conversation. Changing it mid-conversation applies to the next message.</p>
+    </section>
+
+    <section class="panel">
+      <div class="toolbar">
+        <button id="newConversation" type="button">New Conversation</button>
+        <button id="exportBtn" type="button">Export .md</button>
+        <span class="model-tag" id="modelTag"></span>
+      </div>
+
+      <div id="conversation" class="conversation" aria-live="polite">
+        <div class="empty" id="emptyState">No messages yet. Write a prompt below and press Send.</div>
+      </div>
+
+      <div class="composer">
+        <label for="userPrompt" class="sr-only">Your prompt</label>
+        <textarea id="userPrompt" rows="4" placeholder="Type your prompt here..."></textarea>
+        <div class="composer-actions">
+          <span class="status" id="status"></span>
+          <button id="sendBtn" type="button" class="primary">Send</button>
+        </div>
+        <p class="hint">Tip: with a keyboard attached, press &#8984;+Return (or Ctrl+Enter) to send.</p>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var MODEL = "claude-sonnet-5";
+      var API_URL = "https://api.anthropic.com/v1/messages";
+      var API_VERSION = "2026-10-21";
+      var MAX_TOKENS = 16000;
+
+      // Messages sent to the API. Assistant turns keep the full content array
+      // returned by the API so follow-ups send the history back unchanged.
+      var apiMessages = [];
+
+      // What the export uses: the exact text that was sent and received, in order.
+      // Each entry: { role: "system" | "user" | "assistant", text: string }
+      var transcript = [];
+
+      var busy = false;
+
+      var els = {
+        apiKey: document.getElementById("apiKey"),
+        toggleKey: document.getElementById("toggleKey"),
+        systemPrompt: document.getElementById("systemPrompt"),
+        conversation: document.getElementById("conversation"),
+        emptyState: document.getElementById("emptyState"),
+        userPrompt: document.getElementById("userPrompt"),
+        sendBtn: document.getElementById("sendBtn"),
+        newConversation: document.getElementById("newConversation"),
+        exportBtn: document.getElementById("exportBtn"),
+        status: document.getElementById("status"),
+        modelTag: document.getElementById("modelTag")
+      };
+
+      els.modelTag.textContent = "Model: " + MODEL;
+
+      function setStatus(text) {
+        els.status.textContent = text || "";
+      }
+
+      function setBusy(value) {
+        busy = value;
+        els.sendBtn.disabled = value;
+        els.newConversation.disabled = value;
+        els.sendBtn.textContent = value ? "Sending..." : "Send";
+      }
+
+      function addBubble(kind, roleLabel, text) {
+        if (els.emptyState.parentNode) {
+          els.emptyState.parentNode.removeChild(els.emptyState);
+        }
+        var wrap = document.createElement("div");
+        wrap.className = "message " + kind;
+        var role = document.createElement("div");
+        role.className = "role";
+        role.textContent = roleLabel;
+        var body = document.createElement("div");
+        body.className = "body";
+        body.textContent = text;
+        wrap.appendChild(role);
+        wrap.appendChild(body);
+        els.conversation.appendChild(wrap);
+        wrap.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        return wrap;
+      }
+
+      function lastSystemInTranscript() {
+        for (var i = transcript.length - 1; i >= 0; i--) {
+          if (transcript[i].role === "system") return transcript[i].text;
+        }
+        return null;
+      }
+
+      function explainHttpError(status, data) {
+        var apiMsg = data && data.error && data.error.message ? data.error.message : "";
+        var type = data && data.error && data.error.type ? data.error.type : "";
+        var hint;
+        switch (status) {
+          case 400: hint = "The request was rejected as invalid."; break;
+          case 401: hint = "The API key was not accepted. Check that you pasted the full key correctly."; break;
+          case 403: hint = "This key does not have permission for this request."; break;
+          case 404: hint = "Not found. The model \"" + MODEL + "\" may not be available to your account."; break;
+          case 413: hint = "The request is too large."; break;
+          case 429: hint = "Rate limit or spending limit reached. Wait a moment and try again, or check your account's limits and credits."; break;
+          case 500: hint = "Anthropic's API had an internal error. Try again shortly."; break;
+          case 529: hint = "Anthropic's API is temporarily overloaded. Try again shortly."; break;
+          default: hint = "The API returned an error.";
+        }
+        var parts = ["Request failed (HTTP " + status + (type ? ", " + type : "") + ")."];
+        parts.push(hint);
+        if (apiMsg) parts.push("API message: " + apiMsg);
+        return parts.join("\n");
+      }
+
+      function explainNetworkError(err) {
+        var lines = [
+          "The request did not reach Anthropic's API or the browser blocked the response, so no reply was received.",
+          "Browser error: " + (err && err.message ? err.message : String(err)),
+          "",
+          "Common causes:",
+          "- No internet connection, or a network/content filter (school or work Wi-Fi, VPN, ad blocker) blocking api.anthropic.com.",
+          "- The browser's CORS rules. Browsers only allow this page to call the API because it sends the \"anthropic-dangerous-direct-browser-access\" header; a proxy or extension that strips headers will break that.",
+          "- The page was opened in a viewer that cannot run web requests (for example a Files app preview). Open it in Safari over http(s) instead."
+        ];
+        return lines.join("\n");
+      }
+
+      async function sendMessage() {
+        if (busy) return;
+
+        var key = els.apiKey.value.trim();
+        var prompt = els.userPrompt.value;
+        var system = els.systemPrompt.value;
+
+        if (!key) {
+          addBubble("notice", "Notice", "Paste your Anthropic API key at the top before sending.");
+          els.apiKey.focus();
+          return;
+        }
+        if (!prompt.trim()) {
+          setStatus("Type a prompt first.");
+          els.userPrompt.focus();
+          return;
+        }
+
+        // Show the system prompt when it is first used or changed; it joins the transcript on success.
+        var newSystem = system.trim() && system !== lastSystemInTranscript();
+        if (newSystem) addBubble("notice", "System", system);
+
+        var requestMessages = apiMessages.concat([{ role: "user", content: prompt }]);
+        var body = {
+          model: MODEL,
+          max_tokens: MAX_TOKENS,
+          messages: requestMessages
+        };
+        if (system.trim()) body.system = system;
+
+        addBubble("you", "You", prompt);
+        els.userPrompt.value = "";
+        setBusy(true);
+        setStatus("Waiting for Claude...");
+
+        var response, data;
+        try {
+          response = await fetch(API_URL, {
+            method: "POST",
+            headers: {
+              "content-type": "application/json",
+              "x-api-key": key,
+              "anthropic-version": API_VERSION,
+              // Required by Anthropic for requests made directly from a browser (CORS).
+              "anthropic-dangerous-direct-browser-access": "true"
+            },
+            body: JSON.stringify(body)
+          });
+        } catch (err) {
+          failTurn(prompt, explainNetworkError(err));
+          return;
+        }
+
+        try {
+          data = await response.json();
+        } catch (err) {
+          data = null;
+        }
+
+        if (!response.ok) {
+          failTurn(prompt, explainHttpError(response.status, data));
+          return;
+        }
+
+        if (!data || !Array.isArray(data.content)) {
+          failTurn(prompt, "The API responded (HTTP " + response.status + ") but the response could not be read as a message.");
+          return;
+        }
+
+        var text = data.content
+          .filter(function (block) { return block.type === "text"; })
+          .map(function (block) { return block.text; })
+          .join("");
+
+        if (data.stop_reason === "refusal") {
+          var detail = data.stop_details && data.stop_details.explanation ? "\n" + data.stop_details.explanation : "";
+          failTurn(prompt, "Claude declined this request (stop_reason: refusal)." + detail);
+          return;
+        }
+
+        // Success: commit both turns to history and the transcript.
+        if (newSystem) transcript.push({ role: "system", text: system });
+        apiMessages.push({ role: "user", content: prompt });
+        apiMessages.push({ role: "assistant", content: data.content });
+        transcript.push({ role: "user", text: prompt });
+        transcript.push({ role: "assistant", text: text });
+
+        addBubble("claude", "Claude", text || "(Claude returned no text.)");
+
+        if (data.stop_reason === "max_tokens") {
+          addBubble("notice", "Notice", "The reply hit the " + MAX_TOKENS + "-token limit and was cut off.");
+        }
+
+        var usage = data.usage ? " · " + data.usage.input_tokens + " in / " + data.usage.output_tokens + " out tokens" : "";
+        setStatus("Done" + usage);
+        setBusy(false);
+        els.userPrompt.focus();
+      }
+
+      // A failed turn is not added to the history, so a retry starts cleanly.
+      function failTurn(prompt, message) {
+        addBubble("error", "Error", message);
+        if (!els.userPrompt.value) els.userPrompt.value = prompt;
+        setStatus("Not sent. Your prompt is back in the box so you can retry.");
+        setBusy(false);
+      }
+
+      function newConversation() {
+        if (busy) return;
+        if (transcript.length && !confirm("Clear the current conversation? Export it first if you want to keep it.")) {
+          return;
+        }
+        apiMessages = [];
+        transcript = [];
+        els.conversation.innerHTML = "";
+        els.conversation.appendChild(els.emptyState);
+        setStatus("New conversation started.");
+      }
+
+      function buildMarkdown() {
+        var lines = [MODEL, ""];
+        var headings = { system: "### System", user: "### You", assistant: "### Claude" };
+        transcript.forEach(function (entry) {
+          lines.push(headings[entry.role]);
+          lines.push("");
+          lines.push(entry.text);
+          lines.push("");
+        });
+        return lines.join("\n");
+      }
+
+      function exportConversation() {
+        if (!transcript.length) {
+          setStatus("Nothing to export yet.");
+          return;
+        }
+        var md = buildMarkdown();
+        var stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+        var filename = "prompt-lab-" + stamp + ".md";
+        var blob = new Blob([md], { type: "text/markdown;charset=utf-8" });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 10000);
+        setStatus("Exported " + filename);
+      }
+
+      els.toggleKey.addEventListener("click", function () {
+        var hidden = els.apiKey.type === "password";
+        els.apiKey.type = hidden ? "text" : "password";
+        els.toggleKey.textContent = hidden ? "Hide" : "Show";
+      });
+
+      els.sendBtn.addEventListener("click", sendMessage);
+      els.newConversation.addEventListener("click", newConversation);
+      els.exportBtn.addEventListener("click", exportConversation);
+
+      els.userPrompt.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
