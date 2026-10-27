@@ -4,7 +4,7 @@
 
 I built a Prompt Lab, a single-file web app (`week-02/prompt-lab.html`) that sends prompts to Claude through the Anthropic API using the model `claude-sonnet-5`. I paste my API key in each session, and it is never saved or written into the code. The app has a System Prompt field and a conversation area that supports follow-up messages. A New Conversation button clears the history. The Export button downloads the conversation as Markdown, with the model name on the first line and each message under `### System`, `### You` or `### Claude`.
 
-I used the Prompt Lab to run four prompting exercises for Wildframe Coffee Roasters, a fictional specialty coffee roaster with a warm, plainspoken, slightly irreverent voice. Each task was its own conversation. The four Prompt Lab exports are saved unedited in `week-02/runs/` as `task-1.md` through `task-4.md`. (The `task-N-claude-code-conversation.md` files in the same folder are an earlier practice round done in Claude Code before I had the Prompt Lab working. They are not my submitted runs.)
+I used the Prompt Lab to run four prompting exercises for Wildframe Coffee Roasters, a fictional specialty coffee roaster with a warm, plainspoken, slightly irreverent voice. Each task was its own conversation. The four Prompt Lab exports are saved unedited in `week-02/runs/` as `task-1.md` through `task-4.md`.
 
 One thing I noticed in the exports is that the System Prompts for Tasks 3 and 4, and the Task 3 user prompt, end with a stray line like "Copy System Prompt" or "Copy Task 3 Prompt." It looks like button text that got copied along with the prompts, so it was sent to Claude too. It didn't seem to affect the responses.
 
