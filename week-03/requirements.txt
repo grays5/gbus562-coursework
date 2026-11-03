@@ -1,0 +1,8 @@
+# Week 3 Part B: Python RAG tool (Chroma + Anthropic API)
+# Install inside a virtual environment:
+#   python3 -m venv .venv
+#   source .venv/bin/activate
+#   pip install -r week-03/requirements.txt
+chromadb>=1.5,<2
+anthropic>=2.4,<3
+python-dotenv>=1.2,<2
