@@ -11,5 +11,5 @@ See `writeup.md` for full details and verified results.
 
 ## Not done: needs a working ANTHROPIC_API_KEY
 
-- No Claude answers have been generated. `week-03/runs/` doesn't exist yet.
-- Copperline Manufacturing documents have not been added. `copperline-docs/` is empty.
+- The seven required runs (Q1 before, Q1 after, Q2 to Q6) have no Claude answers. `week-03/runs/q1-before.txt`, `q1-after.txt` and `q2.txt` to `q6.txt` don't exist yet. The retrieval results for all seven are verified and recorded in `writeup.md`.
+- The Example Run in `writeup.md` is empty until one saved run exists.
