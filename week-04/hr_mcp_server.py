@@ -3,13 +3,13 @@
 
 It exposes one organization's HR data to an agent as MCP tools:
 
-    search_policies(query, k)        - semantic search over the org's policy documents (Chroma)
+    search_policy(query, k)          - semantic search over the org's policy documents (Chroma)
     list_policies()                  - names of the policy documents that are indexed
     get_leave_balance(employee_email) - leave balances for the SENDER of the current email only
 
 Each organization lives in its own folder (default: week-04/hartwell-hr) containing:
 
-    policies/        policy documents (.md, .txt, .html, .htm, .pdf)
+    hr-docs/         policy documents (.md, .txt, .html, .htm, .pdf); a folder named policies/ also works
     employees.csv    employee roster with an email column and one or more balance columns
     sample-emails/   incoming employee emails (read by agent.py, not by this server)
     system_prompt.txt the agent's system prompt (read by agent.py)
@@ -72,9 +72,20 @@ def resolve_org_dir(org):
     return candidate.resolve()
 
 
+POLICY_FOLDER_NAMES = ("hr-docs", "policies")
+
+
+def policies_dir_for(org_dir):
+    """The org's policy folder: hr-docs/ (as in the course data) or policies/."""
+    for name in POLICY_FOLDER_NAMES:
+        if (org_dir / name).is_dir():
+            return org_dir / name
+    return org_dir / POLICY_FOLDER_NAMES[0]
+
+
 def org_paths(org_dir):
     return {
-        "policies": org_dir / "policies",
+        "policies": policies_dir_for(org_dir),
         "employees": org_dir / "employees.csv",
         "emails": org_dir / "sample-emails",
         "system_prompt": org_dir / "system_prompt.txt",
@@ -290,7 +301,7 @@ def build_server(org_dir, sender_email):
     mcp = FastMCP(f"hr-{org_dir.name}", log_level="WARNING")
 
     @mcp.tool()
-    def search_policies(query: str, k: int = DEFAULT_K) -> str:
+    def search_policy(query: str, k: int = DEFAULT_K) -> str:
         """Search this organization's HR policy documents. Returns the most relevant
         excerpts, each labelled with its source file. Use it before stating any policy."""
         k = max(1, min(int(k), 8, collection.count()))
