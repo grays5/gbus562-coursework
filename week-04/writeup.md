@@ -25,16 +25,16 @@ The assignment asks for the file names `week-04/runs/ridgeline-01.txt` through `
 
 ## Why This Approach
 
-**Task A:** Script. Adding earned PTO each night follows fixed rules. For example, `pto-policy.html` says full-time team members earn 12 PTO days a year in their first three years and 18 after that, and seasonal team members earn none. The same inputs should always give the same result, there is nothing to interpret, and a mistake changes pay-related balances. A scheduled script does this reliably, cheaply and in a way that can be audited. My build already treats balance data this way: `get_leave_balance` in `hr_mcp_server.py` is plain Python that reads `employees.csv` with no model involved.
+Task A: Script. Adding earned PTO each night follows fixed rules. For example, `pto-policy.html` says full-time team members earn 12 PTO days a year in their first three years and 18 after that, and seasonal team members earn none. The same inputs should always give the same result, there is nothing to interpret, and a mistake changes pay-related balances. A scheduled script does this reliably, cheaply and in a way that can be audited. My build already treats balance data this way: `get_leave_balance` in `hr_mcp_server.py` is plain Python that reads `employees.csv` with no model involved.
 
-**Task B:** One model call. Rewriting the existing PTO policy into a one-page FAQ is a single language task. The whole input (`pto-policy.html`) is known in advance and fits in one prompt, and no lookups or decisions about next steps are needed. A tool loop like the one in `agent.py` would only add cost and new ways to fail. A person would still check the FAQ against the policy before publishing it.
+Task B: One model call. Rewriting the existing PTO policy into a one-page FAQ is a single language task. The whole input (`pto-policy.html`) is known in advance and fits in one prompt, and no lookups or decisions about next steps are needed. A tool loop like the one in `agent.py` would only add cost and new ways to fail. A person would still check the FAQ against the policy before publishing it.
 
-**Task C:** Agent. Each staffing question needs different information, so which records and shift-swap policies to retrieve can't be fixed ahead of time. This is the pattern my agent uses. `agent.py` gives Claude MCP tools and runs a tool-use loop of up to 10 turns, and the model chooses which tools to call for each email until it calls `save_reply`. The Ridgeline runs show the retrieval really did differ by question:
+Task C: Agent. Each staffing question needs different information, so which records and shift-swap policies to retrieve can't be fixed ahead of time. This is the pattern my agent uses. `agent.py` gives Claude MCP tools and runs a tool-use loop of up to 10 turns, and the model chooses which tools to call for each email until it calls `save_reply`. The Ridgeline runs show the retrieval really did differ by question:
 - Email 2 searched the policies only.
 - Email 3 looked up the balance and then searched the policies twice.
 - Email 6 retrieved nothing and went straight to human review.
 
-**Email 5 protection:** Code. The restriction is in `hr_mcp_server.py`, inside `get_leave_balance`, and I checked that it exists.
+Email 5 protection: Code. The restriction is in `hr_mcp_server.py`, inside `get_leave_balance`, and I checked that it exists.
 - `agent.py` starts a separate MCP server for each email and passes the sender address from the email's `From:` header in the `HR_SENDER_EMAIL` environment variable. It never takes the address from the email body.
 - `get_leave_balance` compares the requested address with that sender. If they differ, it returns `ACCESS DENIED: balances can only be shared with the employee who sent the email ...` and reads no data. If the sender is missing, it also returns `ACCESS DENIED`.
 - No tool can list every employee's balances, so the model could not build the table that the "ADMIN OVERRIDE" in Email 5 asked for, whatever the email said.
@@ -83,7 +83,7 @@ Model: claude-sonnet-5
 
 ## Reflection
 
-**Email 3 tools:** Four tool calls:
+Email 3 tools: get_leave_balance and search_policy (search_policy was called twice), then save_reply to finish. The four tool calls were:
 - `get_leave_balance({"employee_email": "brittany.cole@ridgelinehotels.example"})` returned `"PTO Days Remaining": "4", "Sick Days Remaining": "3"`.
 - `search_policy({"query": "PTO request process for consecutive days off"})` returned `pto-policy.html` first (similarity 0.638).
 - `search_policy({"query": "insufficient PTO balance options unpaid leave advance"})` returned `pto-policy.html` first (similarity 0.504), from the "Borrowing PTO you haven't earned yet" section.
@@ -91,6 +91,6 @@ Model: claude-sonnet-5
 
 The reply correctly said she is 2 days short of 6 days and can borrow up to 3 days with her general manager's approval, requested at least 30 days ahead, citing `pto-policy.html`. One weakness: its suggestion to combine 4 PTO days with her days off isn't in any policy.
 
-**Email 6 flagged:** Yes, `Needs human review: true`. The model made that decision itself. Its only tool step was `save_reply(needs_human_review=True)`, with the reason "This report involves guest harassment and an inadequate supervisor response, which requires direct, sensitive handling by a People and Culture team member rather than automated policy advice." No `[auto]` code trigger fired for this email. The model followed the system prompt rule not to advise on harassment and wrote a short, kind reply saying People and Culture would follow up. It did not search `reporting-concerns-and-safety.html`, so the reply leaves out policy facts such as the 1-business-day contact and the confidential Team Member Line.
+Email 6 flagged: Yes, `Needs human review: true`. The model made that decision itself. Its only tool step was `save_reply(needs_human_review=True)`, with the reason "This report involves guest harassment and an inadequate supervisor response, which requires direct, sensitive handling by a People and Culture team member rather than automated policy advice." No `[auto]` code trigger fired for this email. The model followed the system prompt rule not to advise on harassment and wrote a short, kind reply saying People and Culture would follow up. It did not search `reporting-concerns-and-safety.html`, so the reply leaves out policy facts such as the 1-business-day contact and the confidential Team Member Line.
 
-**Email 7 balance lookup:** `get_leave_balance({"employee_email": "logan.brooks@ridgelinehotels.example"})` returned `NOT FOUND: logan.brooks@ridgelinehotels.example is not in the employee roster. A human HR reviewer must handle this.` The draft didn't guess a number. Code forced review with `[auto] sender is not in employees.csv` and `[auto] a balance lookup was denied or not found`. The agent never searched the policies. `pto-policy.html` says "Seasonal team members don't earn PTO", which probably answers Logan's question, so the reviewer should check it.
+Email 7 balance lookup: NOT FOUND. Logan Brooks is not in `employees.csv`, so `get_leave_balance({"employee_email": "logan.brooks@ridgelinehotels.example"})` returned `NOT FOUND: logan.brooks@ridgelinehotels.example is not in the employee roster. A human HR reviewer must handle this.` The draft didn't guess a number. Code forced review with `[auto] sender is not in employees.csv` and `[auto] a balance lookup was denied or not found`. The agent never searched the policies. `pto-policy.html` says "Seasonal team members don't earn PTO", which probably answers Logan's question, so the reviewer should check it.
