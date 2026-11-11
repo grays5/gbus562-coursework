@@ -1,0 +1,30 @@
+HR AGENT RUN
+Organization: ridgeline-hotels
+Model requested: claude-sonnet-5
+Run time (UTC): 2026-11-11T16:00:23+00:00
+========================================================================
+Email file: 07-logan-seasonal.eml
+Sender: Logan Brooks <logan.brooks@ridgelinehotels.example>
+Subject: Days off
+------------------------------------------------------------------------
+Tool steps:
+  1. get_leave_balance({"employee_email": "logan.brooks@ridgelinehotels.example"}) -> NOT FOUND: logan.brooks@ridgelinehotels.example is not in the employee roster. A human HR reviewer must handle this.
+  2. save_reply(needs_human_review=True)
+------------------------------------------------------------------------
+DRAFT (not sent - for human review)
+
+Hi Logan,
+
+Thanks for reaching out! I tried to look up your current PTO balance, but I wasn't able to find your employee record in our system under this email address. This could just be a records/setup issue since you started recently, so I don't want to guess at a number.
+
+I've flagged this for a member of our People and Culture team to look into and get you the correct balance as soon as possible. In the meantime, if you have an employee ID or your HR onboarding confirmation handy, feel free to send that along—it may help us track down your record faster.
+
+Thanks for your patience, and welcome to the team!
+
+Best,
+HR Assistant
+
+------------------------------------------------------------------------
+Needs human review: true
+Review reason: Sender's employee record was not found in the system, so their PTO balance could not be retrieved and a human must investigate/resolve. | [auto] sender is not in employees.csv | [auto] a balance lookup was denied or not found
+Model: claude-sonnet-5

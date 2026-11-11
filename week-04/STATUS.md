@@ -25,12 +25,17 @@
 | Another employee's balance (for example Tyler asking about Jenna) | `ACCESS DENIED` from the server |
 | Retrieval | PTO, bereavement, room rate, harassment and seasonal questions each returned the matching policy file first |
 
-## Not done: an API key is needed
+## Ridgeline Hotels: live runs (done)
 
-- `ANTHROPIC_API_KEY` is not available in this environment, so none of the seven emails has been run against Claude and `runs/` is empty.
-- `hartwell-hr/` still has no files (the lecture's Hartwell data), so the default `--org` stops and lists what is missing.
+- All seven emails were run with `claude-sonnet-5` on 2026-11-11. The originals are in `runs/ridgeline-hotels/`, and exact copies named `runs/ridgeline-01.txt` to `runs/ridgeline-07.txt` are for submission.
+- Emails 5, 6 and 7 were flagged for human review. Emails 1 to 4 were not.
+- The writeup is in `writeup.md`. Known weaknesses in the runs are listed in its Reflection section.
 
-To run all seven Ridgeline emails and save one file per email to `runs/ridgeline-hotels/`:
+## Still open
+
+- `hartwell-hr/` still has no files (the lecture's Hartwell data), so the default `--org` stops and lists what is missing. Use `--org ridgeline-hotels`.
+
+To run all seven Ridgeline emails again and save one file per email to `runs/ridgeline-hotels/`:
 
 ```
 python week-04/agent.py --org ridgeline-hotels --save
