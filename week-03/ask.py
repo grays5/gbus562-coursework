@@ -28,7 +28,7 @@ import anthropic
 import chromadb
 from dotenv import load_dotenv
 
-MODEL = "claude-sonnet-5"  # required by the course; never silently replaced
+MODEL = "claude-sonnet-5-5"  # required by the course; never silently replaced
 WEEK_DIR = Path(__file__).resolve().parent
 DEFAULT_DOCS = WEEK_DIR / "copperline-docs"
 CHROMA_ROOT = WEEK_DIR / "chroma"  # excluded from Git by .gitignore

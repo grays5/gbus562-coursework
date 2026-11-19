@@ -1,0 +1,49 @@
+RAG RUN
+Question: A member lost their wallet and called us the same day. How much of any fraudulent spending on their debit card could they be on the hook for?
+Documents folder: /content/gbus562-coursework/week-03/larkfield-docs
+Documents indexed: card-dispute-procedure.html, consumer-fee-schedule.html, fee-refund-guide.html, funds-availability-policy.html, share-certificates.html
+Chroma database: /content/gbus562-coursework/week-03/chroma/larkfield-docs-bb80021d
+Model requested: claude-sonnet-5-5
+Model that answered: claude-sonnet-5-5
+Run time (UTC): 2026-11-19T14:59:17+00:00
+
+RETRIEVED CHUNKS (top 5, cosine similarity)
+
+[1] Rank: 1 | Similarity: 0.6336 | Source: card-dispute-procedure.html
+Debit Card Dispute Procedure (Version 4) | Larkfield Credit Union
+Version 4 (current). Owner: Card Services.
+Section: How much the member may have to pay
+A member's share of the loss from unauthorized debit card transactions depends on how quickly they report it. If the member reports a lost or stolen card within two business days of learning about it, they pay no more than $50. If they report it later than that, they may pay up to $500. If unauthorized transactions appear on a statement and the member does not report them within 60 days after the statement was sent, they may have to pay for transactions after those 60 days in full.
+
+[2] Rank: 2 | Similarity: 0.5019 | Source: card-dispute-procedure.html
+Debit Card Dispute Procedure (Version 4) | Larkfield Credit Union
+Version 4 (current). Owner: Card Services.
+Section: When a member reports a transaction they did not make
+When a member says a debit card transaction on their account was not made or authorized by them, freeze the card right away in the card system, then open a dispute case. Order a replacement card. The replacement is free when the card was used for fraud.
+
+[3] Rank: 3 | Similarity: 0.4473 | Source: card-dispute-procedure.html
+Debit Card Dispute Procedure (Version 4) | Larkfield Credit Union
+Version 4 (current). Owner: Card Services.
+Section: Provisional credit
+Larkfield investigates every dispute. If the investigation is not finished within 10 business days, the member receives a provisional credit for the disputed amount while it continues. If the investigation finds the transaction was authorized, the provisional credit is reversed and the member is told in writing.
+
+[4] Rank: 4 | Similarity: 0.3898 | Source: card-dispute-procedure.html
+Debit Card Dispute Procedure (Version 4) | Larkfield Credit Union
+Version 4 (current). Owner: Card Services.
+Section: The dispute form
+The member must sign a dispute form listing each transaction they are disputing. The form can be signed at a branch or electronically through online banking. The investigation begins when Larkfield receives the signed form.
+
+[5] Rank: 5 | Similarity: 0.3859 | Source: consumer-fee-schedule.html
+Consumer Fee Schedule (Version 8) | Larkfield Credit Union
+Version 8 (current). Replaces Version 7. Owner: Member Services.
+Section: Overdraft and returned item fees
+When Larkfield pays a check, debit card purchase, or automatic payment that overdraws a member's checking account, the overdraft fee is $29 per item paid. When Larkfield returns an item unpaid because the account does not have enough money, the returned item fee is $29 per item returned. No more than three overdraft or returned item fees are charged to one account in a single business day.
+No overdraft fee is charged if the account is overdrawn by $10 or less at the end of the business day.
+Members can link a savings account for overdraft transfers. An overdraft transfer from a linked savings account is free.
+
+ANSWER
+The member could be responsible for no more than $50. The procedure says that if a member reports a lost or stolen card within two business days of learning about it, they pay no more than $50 [1: card-dispute-procedure.html]. Since the member called the same day, that falls within the two-business-day window.
+
+The documents don't say whether the member "learned" of the loss on the day they called, but the member reported it the same day, so the timing appears to be met.
+
+For next steps, the procedure says to freeze the card right away in the card system, open a dispute case, and order a replacement card. The replacement is free when the card was used for fraud [2: card-dispute-procedure.html]. The member must also sign a dispute form listing each disputed transaction, either at a branch or electronically through online banking, and the investigation begins when Larkfield receives that signed form [4: card-dispute-procedure.html].

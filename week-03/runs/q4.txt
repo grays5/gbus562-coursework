@@ -1,0 +1,53 @@
+RAG RUN
+Question: Can I refund the outgoing international wire transfer fee for a member without approval from a manager?
+Documents folder: /content/gbus562-coursework/week-03/larkfield-docs
+Documents indexed: card-dispute-procedure.html, consumer-fee-schedule.html, fee-refund-guide.html, funds-availability-policy.html, share-certificates.html
+Chroma database: /content/gbus562-coursework/week-03/chroma/larkfield-docs-bb80021d
+Model requested: claude-sonnet-5-5
+Model that answered: claude-sonnet-5-5
+Run time (UTC): 2026-11-19T14:59:26+00:00
+
+RETRIEVED CHUNKS (top 5, cosine similarity)
+
+[1] Rank: 1 | Similarity: 0.5341 | Source: fee-refund-guide.html
+Fee Refund Guide for Member Service Staff (Version 2) | Larkfield Credit Union
+Version 2 (current). Owner: Member Services.
+Section: Refunds that need a branch manager
+A refund needs the branch manager's approval when the fee is more than $30, when the member has already had a refund in the last 90 days, or when the member asks for several fees to be refunded at once. A branch manager may approve refunds of up to $150 in total for one member in any 90-day period.
+
+[2] Rank: 2 | Similarity: 0.5096 | Source: fee-refund-guide.html
+Fee Refund Guide for Member Service Staff (Version 2) | Larkfield Credit Union
+Version 2 (current). Owner: Member Services.
+Section: What a member service representative can approve
+A member service representative may approve a refund of a single fee of $30 or less without anyone else's approval. A representative may approve only one refund for the same member in any 90-day period.
+
+[3] Rank: 3 | Similarity: 0.4920 | Source: fee-refund-guide.html
+Fee Refund Guide for Member Service Staff (Version 2) | Larkfield Credit Union
+Version 2 (current). Owner: Member Services.
+Section: Refunds that need the Member Services Director
+Refunds of more than $150 in total for one member in any 90-day period need the Member Services Director's approval. So does any refund for a business account.
+
+[4] Rank: 4 | Similarity: 0.4881 | Source: consumer-fee-schedule.html
+Consumer Fee Schedule (Version 8) | Larkfield Credit Union
+Version 8 (current). Replaces Version 7. Owner: Member Services.
+Section: Wire transfers
+- Incoming domestic wire transfer: $10.
+- Incoming international wire transfer: $15.
+- Outgoing domestic wire transfer: $25.
+- Outgoing international wire transfer: $45. The receiving bank or an intermediary bank may deduct its own fees from the amount sent.
+
+[5] Rank: 5 | Similarity: 0.4558 | Source: fee-refund-guide.html
+Fee Refund Guide for Member Service Staff (Version 2) | Larkfield Credit Union
+Version 2 (current). Owner: Member Services.
+Section: Recording a refund
+Every refund must be recorded in the member's account notes with the fee, the amount refunded, the reason, and the name of the person who approved it. Refunds that are not recorded this way may be reversed during the monthly audit.
+
+ANSWER
+No. The outgoing international wire transfer fee is $45 [4: consumer-fee-schedule.html]. A member service representative may approve a refund without anyone else's approval only for a single fee of $30 or less [2: fee-refund-guide.html]. Because $45 is more than $30, the refund needs the branch manager's approval [1: fee-refund-guide.html].
+
+Other points that may apply:
+- If the member has already had a refund in the last 90 days, or is asking for several fees to be refunded at once, branch manager approval is also needed [1: fee-refund-guide.html].
+- If the refund would bring the member's total refunds above $150 in a 90-day period, or if it is for a business account, the Member Services Director must approve it [3: fee-refund-guide.html].
+- Whoever approves it, record the fee, the amount refunded, the reason, and the approver's name in the member's account notes. Unrecorded refunds may be reversed during the monthly audit [5: fee-refund-guide.html].
+
+The excerpts do not say whether this fee is ever waived or reduced for other reasons, only the approval thresholds above.
