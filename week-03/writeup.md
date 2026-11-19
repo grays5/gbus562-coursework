@@ -6,13 +6,13 @@ I also added options to select a document folder, rebuild the database, and save
 
 ## Why This Approach
 
-**Chunking method:** Structure
+Chunking method: Structure. `ask.py` splits each HTML document at its `<h2>` section headings, so every chunk is one complete section such as "Overdraft and returned item fees". A section longer than 1,200 characters is split further at sentence breaks.
 
-**Makes sense on its own:** Yes. Each chunk includes the document title, version information, and a section of the document, making the information understandable without reading the entire file.
+Makes sense on its own: Yes. Each chunk includes the document title, version information, and a section of the document, making the information understandable without reading the entire file.
 
-**Label and source:** Both. Each retrieved chunk includes identifying information and its source filename, allowing users to understand where the information came from and check its accuracy.
+Label and source: Both. Each retrieved chunk includes identifying information and its source filename, allowing users to understand where the information came from and check its accuracy.
 
-**Short enough:** Yes. Dividing documents by their section headings helps keep related information together while avoiding sending entire documents to Claude. The chunks are designed to provide focused context for answering questions.
+Short enough: Yes. Dividing documents by their section headings helps keep related information together while avoiding sending entire documents to Claude. The chunks are designed to provide focused context for answering questions.
 
 ## Example Run
 
@@ -74,10 +74,10 @@ The replacement card is free when the old card was reported lost or stolen becau
 
 ## Reflection
 
-**What was wrong:** The document folder contained both `consumer-fee-schedule-v7.html` and the newer `consumer-fee-schedule.html`. The outdated Version 7 document stated that overdraft fees were $35, while the current Version 8 document stated $29. The retrieval results included chunks from both versions, which could have caused conflicting answers.
+What was wrong: The document folder contained both `consumer-fee-schedule-v7.html` and the newer `consumer-fee-schedule.html`. The outdated Version 7 document stated that overdraft fees were $35, while the current Version 8 document stated $29. The retrieval results included chunks from both versions, which could have caused conflicting answers.
 
-**How I fixed it:** Moved `consumer-fee-schedule-v7.html` into the `archived-docs` folder and rebuilt the Chroma database. After the fix, the tool retrieved the current Version 8 fee schedule without including the outdated Version 7 information.
+How I fixed it: Moved `consumer-fee-schedule-v7.html` into the `archived-docs` folder and rebuilt the Chroma database. After the fix, the tool retrieved the current Version 8 fee schedule without including the outdated Version 7 information.
 
-**Prevention:** Archive process. In the future, outdated document versions should be moved out of the active knowledge base before rebuilding the database. A designated document owner should also verify which version is current.
+Prevention: Archive process. In the future, outdated document versions should be moved out of the active knowledge base before rebuilding the database. A designated document owner should also verify which version is current.
 
-**Question 6:** Declined. In `runs/q6.txt`, Claude answered that "the documents provided do not answer this question." It said the retrieved excerpts covered only the consumer fee schedule and share certificate dividend rates, that none of them mention mortgage rates, and that staff would need to check a mortgage or lending document or contact the relevant department. It did not give a rate. The retrieval explains why: all five chunks came from unrelated sections (`consumer-fee-schedule.html` and `share-certificates.html`), with low similarity scores from 0.2106 to 0.2471. Declining was the correct behavior, because no Larkfield document covers mortgages.
+Question 6: Declined. In `runs/q6.txt`, Claude answered that "the documents provided do not answer this question." It said the retrieved excerpts covered only the consumer fee schedule and share certificate dividend rates, that none of them mention mortgage rates, and that staff would need to check a mortgage or lending document or contact the relevant department. It did not give a rate. The retrieval explains why: all five chunks came from unrelated sections (`consumer-fee-schedule.html` and `share-certificates.html`), with low similarity scores from 0.2106 to 0.2471. Declining was the correct behavior, because no Larkfield document covers mortgages.
