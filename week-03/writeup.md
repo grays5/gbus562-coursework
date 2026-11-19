@@ -1,6 +1,6 @@
 ## What I Built
 
-For Week 3, I built a Python retrieval-augmented generation (RAG) tool for Larkfield Credit Union. The program reads the credit union's documents, divides them into searchable sections, and stores those sections in a Chroma vector database. When a user asks a question, the program retrieves the five most relevant sections and sends them to Claude Sonnet 5 to generate an answer based on the documents.
+For Week 3, I built a Python retrieval-augmented generation (RAG) tool for Larkfield Credit Union. The program reads the credit union's documents, divides them into searchable sections, and stores those sections in a Chroma vector database. When a user asks a question, the program retrieves the five most relevant sections and sends them to Claude Sonnet 5.5 (model ID `claude-sonnet-5-5`, the model recorded as both requested and answering in every saved run) to generate an answer based on the documents.
 
 I also added options to select a document folder, rebuild the database, and save the complete question-and-answer results. I tested the tool using the assigned questions about overdraft fees, debit cards, fraud liability, wire transfers, check deposits, and mortgage rates.
 
@@ -80,4 +80,4 @@ The replacement card is free when the old card was reported lost or stolen becau
 
 **Prevention:** Archive process. In the future, outdated document versions should be moved out of the active knowledge base before rebuilding the database. A designated document owner should also verify which version is current.
 
-**Question 6:** Declined. The retrieved chunks concerned unrelated fees and account information rather than current mortgage rates. Because the documents did not provide a 30-year fixed mortgage rate, the tool should decline to provide an unsupported number rather than invent an answer.
+**Question 6:** Declined. In `runs/q6.txt`, Claude answered that "the documents provided do not answer this question." It said the retrieved excerpts covered only the consumer fee schedule and share certificate dividend rates, that none of them mention mortgage rates, and that staff would need to check a mortgage or lending document or contact the relevant department. It did not give a rate. The retrieval explains why: all five chunks came from unrelated sections (`consumer-fee-schedule.html` and `share-certificates.html`), with low similarity scores from 0.2106 to 0.2471. Declining was the correct behavior, because no Larkfield document covers mortgages.
