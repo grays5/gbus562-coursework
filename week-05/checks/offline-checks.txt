@@ -1,0 +1,50 @@
+WEEK 5 OFFLINE CHECKS (no Anthropic API calls were made)
+============================================================================
+A. Data loading and column mapping
+[PASS] copperline-coffee folder is complete - []
+[PASS] all 5 CSVs mapped - bill-of-materials.csv, inbound.csv, orders.csv, parts.csv, suppliers.csv
+[PASS] 4 parts, 4 inbound POs, 10 orders, 6 BOM rows, 4 suppliers
+[PASS] Cafe Duo uses 2 PU-20 per machine
+
+C. check_coverage for each supplier email (days counted from today = day 0)
+[PASS] current schedule, PU-20: no orders at risk
+[PASS] current schedule, BL-12: no orders at risk
+[PASS] current schedule, BR-64: no orders at risk
+[PASS] current schedule, SW-3: no orders at risk
+[PASS] email 01 (PU-20: 40 on day 4, 160 on day 19) - [["O-2203", 10, 12, 19, "yes"], ["O-2204", 20, 15, 19, "no"], ["O-2205", 25, 17, 19, "yes"]]
+[PASS] email 02 Option A (BL-12: 80 on day 7, 120 on day 21) - [["O-2205", 5, 17, 21, "yes"]]
+[PASS] email 02 Option B (BL-12: 200 on day 13) - [["O-2203", 40, 12, 13, "yes"]]
+[PASS] email 03 (BR-64: 120 on day 13): no orders at risk - []
+[PASS] email 04 (SW-3 arrives as scheduled): no orders at risk
+[PASS] unknown PO is reported as an error
+[PASS] unknown part is reported as an error
+
+B. supply_mcp_server.py over MCP stdio
+[PASS] server lists exactly the tools named in analyst.txt - ['check_coverage', 'get_orders_for_part', 'get_part']
+[PASS] get_part(PU-20): 50 on hand, PO-5512 for 200 on day 4
+[PASS] get_orders_for_part(PU-20): 7 orders (Cafe One + Cafe Duo)
+[PASS] check_coverage through MCP matches the direct call
+
+D. Team code paths with a scripted stand-in for the API (no network, not model output)
+[PASS] email 01 parsed
+[PASS] pipeline: brief checks pass when numbers match check_coverage - []
+[PASS] pipeline: 1 supplier reply + 2 customer notices drafted
+[PASS] pipeline: output has full brief, FINAL DRAFT and human-review line
+[PASS] pipeline: penalty order and supplier question force human review
+[PASS] pipeline: customer writer sees no supplier name or penalty - {"order_id": "O-2203", "customer": "Elm State University Dining", "product": "Cafe One", "quantity": 50, "planned_ship_day": 12, "expected_ship_day": 19, "days_later_than_planned": 7, "days_are_counted_from": "today (day 0)"}
+[PASS] pipeline: planted wrong number is caught (no notice for O-2204, run flagged) - customer notices drafted: ['Order O-2203']
+[PASS] orchestrator: brief checks pass when numbers match check_coverage - []
+[PASS] orchestrator: 1 supplier reply + 2 customer notices drafted
+[PASS] orchestrator: output has full brief, FINAL DRAFT and human-review line
+[PASS] orchestrator: penalty order and supplier question force human review
+[PASS] orchestrator: customer writer sees no supplier name or penalty - {"order_id": "O-2203", "customer": "Elm State University Dining", "product": "Cafe One", "quantity": 50, "planned_ship_day": 12, "expected_ship_day": 19, "days_later_than_planned": 7, "days_are_counted_from": "today (day 0)"}
+[PASS] orchestrator: planted wrong number is caught (no notice for O-2204, run flagged) - customer notices drafted: ['Order O-2203']
+
+E. Command-line behaviour without an API key
+[PASS] pipeline.py with default --org (brookfield-bikes) stops and lists missing files
+[PASS] pipeline.py --org copperline-coffee with no API key stops with a clear message - Error: no Anthropic API key found. Set ANTHROPIC_API_KEY in your shell (or in a .env file, which Git ignores) and run again.
+[PASS] orchestrator.py with default --org (brookfield-bikes) stops and lists missing files
+[PASS] orchestrator.py --org copperline-coffee with no API key stops with a clear message - Error: no Anthropic API key found. Set ANTHROPIC_API_KEY in your shell (or in a .env file, which Git ignores) and run again.
+[PASS] unknown --email lists the available emails
+
+Result: 37 of 37 checks passed.

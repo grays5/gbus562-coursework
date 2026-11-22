@@ -1,5 +1,30 @@
 # Week 5 Part B Status (2026-11-22)
 
+## Submission summary
+
+| Item | State |
+|---|---|
+| Code (`supply_mcp_server.py`, `specialists.py`, `pipeline.py`, `orchestrator.py`) | Done |
+| Offline code checks (`check_offline.py`, output in `checks/offline-checks.txt`) | Done: 37 of 37 pass, no API calls |
+| Writeup (`writeup.md`) | Done except the Example Run and the model-dependent Reflection answers |
+| README Week 5 entry | Updated |
+| Live API runs for the four Copperline emails (`runs/copperline-coffee/`) | **NOT DONE**: no Anthropic API key was available |
+| Brookfield Bikes data and lecture files | **NOT AVAILABLE** in the repository |
+
+## Still missing
+
+1. Live runs. Nothing in `runs/` exists yet, and no results were made up. To produce them:
+
+   ```
+   python week-05/pipeline.py --org copperline-coffee --save
+   python week-05/orchestrator.py --org copperline-coffee --save
+   ```
+
+   That writes 8 files: `runs/copperline-coffee/<email>-pipeline.txt` and `<email>-orchestrator.txt`.
+2. `writeup.md` Example Run: paste one complete saved run there.
+3. `writeup.md` Reflection: answer the open questions there from the saved runs.
+4. Brookfield Bikes: add the lecture data to `brookfield-bikes/` (the default `--org`), then check the assumptions below.
+
 The Brookfield lecture files were not available, so the code follows the Copperline assignment files: the five prompts, the five CSVs and the four supplier emails. Everything below marked **Assumption** is my reading of those files. Check each one against the lecture when you have it.
 
 ## Done
@@ -27,7 +52,7 @@ The Brookfield lecture files were not available, so the code follows the Copperl
 | `--org brookfield-bikes` (the default) | Stops and lists the missing files |
 | No API key | Stops with a clear message |
 
-No email has been run against the real API yet.
+All of these are repeated by `python week-05/check_offline.py --save` (37 checks). No email has been run against the real API yet.
 
 ## Assumptions to verify against the lecture
 
