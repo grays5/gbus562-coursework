@@ -23,6 +23,7 @@ B. supply_mcp_server.py over MCP stdio
 [PASS] server lists exactly the tools named in analyst.txt - ['check_coverage', 'get_orders_for_part', 'get_part']
 [PASS] get_part(PU-20): 50 on hand, PO-5512 for 200 on day 4
 [PASS] get_orders_for_part(PU-20): 7 orders (Cafe One + Cafe Duo)
+[PASS] get_orders_for_part reports late_penalty as yes/no, like check_coverage - {"O-2201": "no", "O-2202": "no", "O-2203": "yes", "O-2204": "no", "O-2205": "yes", "O-2208": "no", "O-2210": "no"}
 [PASS] check_coverage through MCP matches the direct call
 
 D. Team code paths with a scripted stand-in for the API (no network, not model output)
@@ -42,6 +43,43 @@ D. Team code paths with a scripted stand-in for the API (no network, not model o
 [PASS] orchestrator: customer writer sees no supplier name or penalty - {"order_id": "O-2203", "customer": "Elm State University Dining", "product": "Cafe One", "quantity": 50, "planned_ship_day": 12, "expected_ship_day": 19, "days_later_than_planned": 7, "days_are_counted_from": "today (day 0)"}
 [PASS] orchestrator: planted wrong number is caught (no notice for O-2204, run flagged) - customer notices drafted: ['Order O-2203']
 
+F. Email 01: brief late_penalty form vs check_coverage, all three customer notices
+[PASS] pipeline, penalty as yes/no text: changed schedule applied (PO-5512 -> 40 on day 4, 160 on day 19)
+[PASS] pipeline, penalty as yes/no text: brief passes validation - []
+[PASS] pipeline, penalty as yes/no text: notices drafted for O-2203, O-2204 and O-2205 - ['Order O-2203', 'Order O-2204', 'Order O-2205']
+[PASS] pipeline, penalty as yes/no text: per-notice human review O-2203 true, O-2204 false, O-2205 true - {"Order O-2203": true, "Order O-2204": false, "Order O-2205": true}
+[PASS] pipeline, penalty as yes/no text: penalty notices give the late-penalty reason; all approved
+[PASS] pipeline, penalty as yes/no text: notice facts come from check_coverage (ship 12/15/17 -> 19)
+[PASS] pipeline, penalty as yes/no text: run-level human review is true
+[PASS] pipeline, penalty as JSON true/false: changed schedule applied (PO-5512 -> 40 on day 4, 160 on day 19)
+[PASS] pipeline, penalty as JSON true/false: brief passes validation - []
+[PASS] pipeline, penalty as JSON true/false: notices drafted for O-2203, O-2204 and O-2205 - ['Order O-2203', 'Order O-2204', 'Order O-2205']
+[PASS] pipeline, penalty as JSON true/false: per-notice human review O-2203 true, O-2204 false, O-2205 true - {"Order O-2203": true, "Order O-2204": false, "Order O-2205": true}
+[PASS] pipeline, penalty as JSON true/false: penalty notices give the late-penalty reason; all approved
+[PASS] pipeline, penalty as JSON true/false: notice facts come from check_coverage (ship 12/15/17 -> 19)
+[PASS] pipeline, penalty as JSON true/false: run-level human review is true
+[PASS] orchestrator, penalty as yes/no text: changed schedule applied (PO-5512 -> 40 on day 4, 160 on day 19)
+[PASS] orchestrator, penalty as yes/no text: brief passes validation - []
+[PASS] orchestrator, penalty as yes/no text: notices drafted for O-2203, O-2204 and O-2205 - ['Order O-2203', 'Order O-2204', 'Order O-2205']
+[PASS] orchestrator, penalty as yes/no text: per-notice human review O-2203 true, O-2204 false, O-2205 true - {"Order O-2203": true, "Order O-2204": false, "Order O-2205": true}
+[PASS] orchestrator, penalty as yes/no text: penalty notices give the late-penalty reason; all approved
+[PASS] orchestrator, penalty as yes/no text: notice facts come from check_coverage (ship 12/15/17 -> 19)
+[PASS] orchestrator, penalty as yes/no text: run-level human review is true
+[PASS] orchestrator, penalty as JSON true/false: changed schedule applied (PO-5512 -> 40 on day 4, 160 on day 19)
+[PASS] orchestrator, penalty as JSON true/false: brief passes validation - []
+[PASS] orchestrator, penalty as JSON true/false: notices drafted for O-2203, O-2204 and O-2205 - ['Order O-2203', 'Order O-2204', 'Order O-2205']
+[PASS] orchestrator, penalty as JSON true/false: per-notice human review O-2203 true, O-2204 false, O-2205 true - {"Order O-2203": true, "Order O-2204": false, "Order O-2205": true}
+[PASS] orchestrator, penalty as JSON true/false: penalty notices give the late-penalty reason; all approved
+[PASS] orchestrator, penalty as JSON true/false: notice facts come from check_coverage (ship 12/15/17 -> 19)
+[PASS] orchestrator, penalty as JSON true/false: run-level human review is true
+  Validation still rejects wrong values:
+[PASS] rejected: O-2204 penalty flipped to yes - ['numbers for O-2204 do not match any check_coverage result']
+[PASS] rejected: O-2203 penalty 'maybe' - ['numbers for O-2203 do not match any check_coverage result']
+[PASS] rejected: O-2205 units_short 26 - ['numbers for O-2205 do not match any check_coverage result']
+[PASS] rejected: O-2203 units_short true (not a number) - ['numbers for O-2203 do not match any check_coverage result']
+[PASS] rejected: O-2203 ready_day 19.5 - ['numbers for O-2203 do not match any check_coverage result']
+[PASS] rejected: O-2204 ready_day from the old schedule (4) - ['numbers for O-2204 do not match any check_coverage result']
+
 E. Command-line behaviour without an API key
 [PASS] pipeline.py with default --org (brookfield-bikes) stops and lists missing files
 [PASS] pipeline.py --org copperline-coffee with no API key stops with a clear message - Error: no Anthropic API key found. Set ANTHROPIC_API_KEY in your shell (or in a .env file, which Git ignores) and run again.
@@ -49,4 +87,4 @@ E. Command-line behaviour without an API key
 [PASS] orchestrator.py --org copperline-coffee with no API key stops with a clear message - Error: no Anthropic API key found. Set ANTHROPIC_API_KEY in your shell (or in a .env file, which Git ignores) and run again.
 [PASS] unknown --email lists the available emails
 
-Result: 39 of 39 checks passed.
+Result: 74 of 74 checks passed.

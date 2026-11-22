@@ -68,7 +68,7 @@ All of these are repeated by `python week-05/check_offline.py --save` (37 checks
 ### Team behaviour
 8. The reviewer allows up to 2 revisions (3 reviews in total). If the last verdict isn't APPROVE, the draft is flagged for review.
 9. A supplier reply of `NO REPLY NEEDED` is not sent to the reviewer.
-10. Customer notices are drafted only for orders whose brief numbers exactly match a `check_coverage` result. In pipeline mode, no notices are drafted while the supplier is waiting for Copperline to choose an option (email 02).
+10. Customer notices are drafted only for orders whose brief numbers exactly match a `check_coverage` result. `units_short`, `ship_day` and `ready_day` must be the same whole numbers (a true/false value never counts as a number). `late_penalty` must be the same yes/no flag; `yes`/`no` and `true`/`false` both count, because the analyst may copy it from either tool. Every tool now reports it as `yes`/`no`. In pipeline mode, no notices are drafted while the supplier is waiting for Copperline to choose an option (email 02).
 11. A customer writer sees only: order number, customer, product, quantity, planned and expected ship day, and days late. It never sees the supplier name or the late penalty.
 12. When asking for a rewrite, the code adds one instruction: "Rewrite the draft so it fixes every point in the reviewer notes. Reply with the email text only." This is the only instruction text not taken from the prompt files.
 

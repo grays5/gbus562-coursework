@@ -118,6 +118,10 @@ async def check_mcp_server():
                   and part["scheduled_deliveries"][0]["arrives_in_days"] == 4)
             orders = json.loads((await session.call_tool("get_orders_for_part", {"part_id": "PU-20"})).content[0].text)
             check("get_orders_for_part(PU-20): 7 orders (Cafe One + Cafe Duo)", len(orders["orders"]) == 7)
+            penalties = {o["order_id"]: o["late_penalty"] for o in orders["orders"]}
+            check("get_orders_for_part reports late_penalty as yes/no, like check_coverage",
+                  set(penalties.values()) <= {"yes", "no"} and penalties["O-2203"] == "yes"
+                  and penalties["O-2204"] == "no" and penalties["O-2205"] == "yes", json.dumps(penalties))
             cov = json.loads((await session.call_tool("check_coverage", {
                 "part_id": "PU-20", "replaces_po": "PO-5512",
                 "new_deliveries": [{"qty": 40, "arrives_in_days": 4}, {"qty": 160, "arrives_in_days": 19}],
@@ -170,9 +174,9 @@ class StandIn:
             self.orch_turn += 1
             script = {1: [_tool("run_supply_analyst", {}, 10)],
                       2: [_tool("draft_supplier_reply", {}, 11)],
-                      3: [_tool("draft_customer_notice", {"order_id": "O-2203"}, 12),
-                          _tool("draft_customer_notice", {"order_id": "O-2204"}, 13)],
-                      4: [_tool("finish", {"summary": "stand-in summary", "decision_needed": False}, 14)]}
+                      3: [_tool("draft_customer_notice", {"order_id": o["order_id"]}, 12 + i)
+                          for i, o in enumerate(self.brief["orders_at_risk"])],
+                      4: [_tool("finish", {"summary": "stand-in summary", "decision_needed": False}, 99)]}
             return _resp(script[self.orch_turn], "tool_use")
         raise AssertionError("unexpected system prompt")
 
@@ -233,6 +237,80 @@ async def check_team_code():
     log()
 
 
+# ---------------------------------------------------------------- F: email 01, all three notices
+
+EMAIL01_ROWS = [("O-2203", "Elm State University Dining", 10, 12, 19, True),
+                ("O-2204", "Kettle & Crumb Bakery", 20, 15, 19, False),
+                ("O-2205", "Tall Pines Coffee House", 25, 17, 19, True)]
+
+
+def email01_brief(penalty_form):
+    """The brief an analyst writes for email 01, with late_penalty copied in the given form."""
+    risky = [{"order_id": o, "customer": c, "units_short": u, "ship_day": sd, "ready_day": r,
+              "late_penalty": penalty_form(pen)} for o, c, u, sd, r, pen in EMAIL01_ROWS]
+    return {"part_id": "PU-20", "what_changed": "stand-in", "orders_at_risk": risky, "options": [],
+            "decisions_for_a_person": [], "supplier_questions": []}
+
+
+async def check_email01_notices():
+    import orchestrator
+    import pipeline
+    import specialists as sp
+
+    log("F. Email 01: brief late_penalty form vs check_coverage, all three customer notices")
+    prompts = sp.load_prompts(ORG)
+    data = supply.SupplyData(ORG)
+    msg = sp.parse_email_file(ORG / "supplier-emails" / "01-danforth-pump-delay.eml")
+    forms = [("yes/no text", lambda b: "yes" if b else "no"),
+             ("JSON true/false", lambda b: b)]
+    expected_flags = {"Order O-2203": True, "Order O-2204": False, "Order O-2205": True}
+    for mode, runner in [("pipeline", pipeline.run_pipeline), ("orchestrator", orchestrator.run_orchestrator)]:
+        for form_name, form in forms:
+            tag = f"{mode}, penalty as {form_name}"
+            run = await runner(StandIn(prompts, email01_brief(form)), ORG, prompts, data, msg)
+            out = pipeline.format_run(run)
+            check(f"{tag}: changed schedule applied (PO-5512 -> 40 on day 4, 160 on day 19)",
+                  [r["deliveries"] for r in run.analyst.coverage_results]
+                  == [[{"arrives_in_days": 4, "qty": 40}, {"arrives_in_days": 19, "qty": 160}]])
+            check(f"{tag}: brief passes validation", run.analyst.problems == [], str(run.analyst.problems))
+            notices = {d.about: d for d in run.drafts if d.audience == "customer"}
+            check(f"{tag}: notices drafted for O-2203, O-2204 and O-2205",
+                  sorted(notices) == sorted(expected_flags) and "not drafted" not in out
+                  and "refused" not in out, str(sorted(notices)))
+            if sorted(notices) != sorted(expected_flags):
+                continue
+            flags = {k: d.needs_human_review for k, d in notices.items()}
+            check(f"{tag}: per-notice human review O-2203 true, O-2204 false, O-2205 true",
+                  flags == expected_flags, json.dumps(flags))
+            check(f"{tag}: penalty notices give the late-penalty reason; all approved",
+                  all(("has a late penalty" in " ".join(notices[k].reasons())) == v
+                      for k, v in expected_flags.items())
+                  and all(d.verdict == "APPROVE" for d in notices.values()))
+            facts = {k: json.loads(d.facts.split("\n", 1)[1].rsplit("\n", 1)[0]) for k, d in notices.items()}
+            check(f"{tag}: notice facts come from check_coverage (ship 12/15/17 -> 19)",
+                  [(f["planned_ship_day"], f["expected_ship_day"], f["days_later_than_planned"])
+                   for _, f in sorted(facts.items())] == [(12, 19, 7), (15, 19, 4), (17, 19, 2)]
+                  and all("penalty" not in d.facts for d in notices.values()))
+            check(f"{tag}: run-level human review is true", "Needs human review: true" in out)
+
+    log("  Validation still rejects wrong values:")
+    cov = [data.check_coverage("PU-20", [{"qty": 40, "arrives_in_days": 4},
+                                         {"qty": 160, "arrives_in_days": 19}], "PO-5512")]
+    bad_cases = [("O-2204 penalty flipped to yes", "O-2204", "late_penalty", "yes"),
+                 ("O-2203 penalty 'maybe'", "O-2203", "late_penalty", "maybe"),
+                 ("O-2205 units_short 26", "O-2205", "units_short", 26),
+                 ("O-2203 units_short true (not a number)", "O-2203", "units_short", True),
+                 ("O-2203 ready_day 19.5", "O-2203", "ready_day", 19.5),
+                 ("O-2204 ready_day from the old schedule (4)", "O-2204", "ready_day", 4)]
+    for name, oid, field, value in bad_cases:
+        brief = email01_brief(lambda b: b)
+        next(o for o in brief["orders_at_risk"] if o["order_id"] == oid)[field] = value
+        problems = sp.verify_brief(brief, cov)
+        check(f"rejected: {name}", problems == [f"numbers for {oid} do not match any check_coverage result"],
+              str(problems))
+    log()
+
+
 # ---------------------------------------------------------------- E: command-line failure modes
 
 
@@ -260,6 +338,7 @@ def main():
     check_data_and_coverage()
     asyncio.run(check_mcp_server())
     asyncio.run(check_team_code())
+    asyncio.run(check_email01_notices())
     check_cli()
     total = sum(1 for line in LINES if line.startswith("[PASS]") or line.startswith("[FAIL]"))
     log(f"Result: {total - len(FAILURES)} of {total} checks passed.")

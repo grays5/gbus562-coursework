@@ -259,6 +259,11 @@ def read_table(path, kind, overrides):
     return rows, mapping
 
 
+def yes_no(flag):
+    """How every tool reports late_penalty, so the analyst sees one form whichever tool it copies."""
+    return "yes" if flag else "no"
+
+
 class SupplyData:
     """All five tables for one organization, keyed for the tools."""
 
@@ -337,7 +342,7 @@ class SupplyData:
                 "units": o["units"], "parts_needed": o["parts_needed"],
                 "ship_day": o["ship_by_day"], "ready_day": ready,
                 "days_late": (None if ready is None else max(0, ready - o["ship_by_day"])),
-                "units_short": short, "late_penalty": "yes" if o.get("late_penalty") else "no",
+                "units_short": short, "late_penalty": yes_no(o.get("late_penalty")),
                 "at_risk": at_risk,
             })
         return {"on_hand": on_hand,
@@ -423,7 +428,8 @@ def build_server(data):
         pid = data.find_part_id(part_id)
         if pid is None:
             return f"NOT FOUND: no part {part_id!r}. Known parts: {sorted(data.parts)}"
-        return json.dumps({"part_id": pid, "orders": data.orders_for_part(pid)}, indent=2)
+        orders = [{**o, "late_penalty": yes_no(o.get("late_penalty"))} for o in data.orders_for_part(pid)]
+        return json.dumps({"part_id": pid, "orders": orders}, indent=2)
 
     @mcp.tool()
     def check_coverage(part_id: str, new_deliveries: list[dict] | None = None,
