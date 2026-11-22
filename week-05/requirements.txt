@@ -1,0 +1,8 @@
+# Week 5: supplier-response team (MCP + Anthropic API)
+# Install inside a virtual environment (from the repository root):
+#   python3 -m venv .venv
+#   source .venv/bin/activate
+#   pip install -r week-05/requirements.txt
+anthropic>=2.4,<3
+mcp>=1.20,<2
+python-dotenv>=1.2,<2
