@@ -1,0 +1,307 @@
+SUPPLIER-RESPONSE TEAM RUN
+Organization: copperline-coffee
+Mode: pipeline
+Model requested: claude-sonnet-5
+Run time (UTC): 2026-11-22T20:46:03+00:00
+============================================================================
+Organization: copperline-coffee
+Mode: pipeline
+Email file: 02-marlow-boiler-options.eml
+From: Victor Lindqvist <v.lindqvist@marlowmetal.example>
+Subject: PO-5520 - BL-12 boilers - please choose a shipping option
+----------------------------------------------------------------------------
+SUPPLY ANALYST
+Analyst tool calls:
+  1. get_part({"part_id": "BL-12"})
+       {
+         "part_id": "BL-12",
+         "description": "1.2-liter boiler",
+         "on_hand": 60,
+         "supplier": "Marlow Metalworks",
+         "supplier_contact": {
+           "supplier": "Marlow Metalworks",
+           "contact_name": "Victor Lindqvist",
+           "contact_email": "v.lindqvist@marlowmetal.example",
+           "part_id": "BL-12"
+         },
+         "scheduled_deliveries": [
+           {
+             "po_number": "PO-5520",
+             "part_id": "BL-12",
+             "supplier": "Marlow Metalworks",
+             "qty": 200,
+             "arrives_in_days": 7
+           }
+         ],
+         "used_in": [
+           {
+             "product": "Cafe Duo",
+             "per_unit": 2
+           },
+           {
+             "product": "Cafe One",
+             "per_unit": 1
+           }
+         ]
+       }
+  2. get_orders_for_part({"part_id": "BL-12"})
+       {
+         "part_id": "BL-12",
+         "orders": [
+           {
+             "order_id": "O-2201",
+             "customer": "Morning Ritual Cafe",
+             "contact_email": "orders@morningritualcafe.example",
+             "product": "Cafe One",
+             "units": 20,
+             "ship_by_day": 6,
+             "late_penalty": false,
+             "per_unit": 1,
+             "parts_needed": 20
+           },
+           {
+             "order_id": "O-2202",
+             "customer": "Harbor Hotel Group",
+             "contact_email": "purchasing@harborhotelgroup.example",
+             "product": "Cafe Duo",
+             "units": 15,
+             "ship_by_day": 9,
+             "late_penalty": false,
+             "per_unit": 2,
+             "parts_needed": 30
+           },
+           {
+             "order_id": "O-2203",
+             "customer": "Elm State University Dining",
+             "contact_email": "dining@elmstate.example",
+             "product": "Cafe One",
+             "units": 50,
+             "ship_by_day": 12,
+             "late_penalty": true,
+             "per_unit": 1,
+             "parts_needed": 50
+           },
+           {
+             "order_id": "O-2204",
+             "customer": "Kettle & Crumb Bakery",
+             "contact_email": "owner@kettleandcrumb.example",
+             "product": "Cafe Duo",
+             "units": 10,
+             "ship_by_day": 15,
+             "late_penalty": false,
+             "per_unit": 2,
+             "parts_needed": 20
+           },
+           {
+             "order_id": "O-2205",
+             "customer": "Tall Pines Coffee House",
+             "contact_email": "hello@tallpinescoffee.example",
+             "product": "Cafe One",
+             "units": 25,
+             "ship_by_day": 17,
+             "late_penalty": true,
+             "per_unit": 1,
+             "parts_needed": 25
+           },
+           {
+             "order_id": "O-2208",
+             "customer": "Northside Roasters",
+             "contact_email": "orders@northsideroasters.example",
+             "product": "Cafe Duo",
+             "units": 12,
+             "ship_by_day": 30,
+             "late_penalty": false,
+             "per_unit": 2,
+             "parts_needed": 24
+           },
+           {
+             "order_id": "O-2210",
+             "customer": "Bright Day Coworking",
+             "contact_email": "office@brightdaycowork.example",
+             "product": "Cafe One",
+             "units": 15,
+             "ship_by_day": 33,
+             "late_penalty": false,
+             "per_unit": 1,
+             "parts_needed": 15
+           }
+         ]
+       }
+  3. check_coverage({"part_id": "BL-12", "new_deliveries": [{"qty": 80, "arrives_in_days": 7}, {"qty": 120, "arrives_in_days": 21}], "replaces_po": "PO-5520"})
+       {
+         "part_id": "BL-12",
+         "schedule_checked": "PO-5520 replaced by the new deliveries; other scheduled deliveries kept",
+         "on_hand": 60,
+         "deliveries": [
+           {
+             "arrives_in_days": 7,
+             "qty": 80
+           },
+           {
+             "arrives_in_days": 21,
+             "qty": 120
+           }
+         ],
+         "total_supply": 260,
+         "total_needed": 184,
+         "orders_at_risk": [
+           {
+             "order_id": "O-2205",
+             "customer": "Tall Pines Coffee House",
+             "product": "Cafe One",
+             "units": 25,
+             "parts_needed": 25,
+             "ship_day": 17,
+             "ready_day": 21,
+             "days_late": 4,
+             "units_short": 5,
+             "late_penalty": "yes",
+             "at_risk": true,
+             "at_risk_before_change": false
+           }
+         ],
+         "orders_covered_on_time": [
+           "O-2201",
+           "O-2202",
+           "O-2203",
+           "O-2204",
+           "O-2208",
+           "O-2210"
+         ],
+         "notes": [
+           "units_short and parts_needed count parts, not finished products",
+           "ready_day null means no scheduled delivery covers the order",
+           "only this part is checked; days are counted from today (day 0)"
+         ]
+       }
+  4. check_coverage({"part_id": "BL-12", "new_deliveries": [{"qty": 200, "arrives_in_days": 13}], "replaces_po": "PO-5520"})
+       {
+         "part_id": "BL-12",
+         "schedule_checked": "PO-5520 replaced by the new deliveries; other scheduled deliveries kept",
+         "on_hand": 60,
+         "deliveries": [
+           {
+             "arrives_in_days": 13,
+             "qty": 200
+           }
+         ],
+         "total_supply": 260,
+         "total_needed": 184,
+         "orders_at_risk": [
+           {
+             "order_id": "O-2203",
+             "customer": "Elm State University Dining",
+             "product": "Cafe One",
+             "units": 50,
+             "parts_needed": 50,
+             "ship_day": 12,
+             "ready_day": 13,
+             "days_late": 1,
+             "units_short": 40,
+             "late_penalty": "yes",
+             "at_risk": true,
+             "at_risk_before_change": false
+           }
+         ],
+         "orders_covered_on_time": [
+           "O-2201",
+           "O-2202",
+           "O-2204",
+           "O-2205",
+           "O-2208",
+           "O-2210"
+         ],
+         "notes": [
+           "units_short and parts_needed count parts, not finished products",
+           "ready_day null means no scheduled delivery covers the order",
+           "only this part is checked; days are counted from today (day 0)"
+         ]
+       }
+
+ANALYST BRIEF (full)
+{
+  "part_id": "BL-12",
+  "what_changed": "PO-5520's 200 BL-12 boilers, originally scheduled to arrive in 7 days, will now ship either as 80 units in 7 days plus 120 units in 21 days (Option A), or all 200 units together in 13 days (Option B).",
+  "orders_at_risk": [],
+  "options": [
+    {
+      "name": "Option A: 80 units in 7 days, 120 units in 21 days",
+      "order_ids_at_risk": [
+        "O-2205"
+      ],
+      "details": [
+        {
+          "order_id": "O-2205",
+          "customer": "Tall Pines Coffee House",
+          "units_short": 5,
+          "ship_day": 17,
+          "ready_day": 21,
+          "late_penalty": true
+        }
+      ]
+    },
+    {
+      "name": "Option B: all 200 units in 13 days",
+      "order_ids_at_risk": [
+        "O-2203"
+      ],
+      "details": [
+        {
+          "order_id": "O-2203",
+          "customer": "Elm State University Dining",
+          "units_short": 40,
+          "ship_day": 12,
+          "ready_day": 13,
+          "late_penalty": true
+        }
+      ]
+    }
+  ],
+  "decisions_for_a_person": [
+    "Choose between Option A (risks order O-2205, Tall Pines Coffee House, 4 days late, 5 units short, late penalty applies) and Option B (risks order O-2203, Elm State University Dining, 1 day late, 40 units short, late penalty applies).",
+    "Reply to Victor Lindqvist within three business days, or Marlow Metalworks will default to Option B."
+  ],
+  "supplier_questions": [
+    "Which shipping option (A or B) would Copperline like for PO-5520?"
+  ]
+}
+Brief checks: OK (fields complete; every at-risk number matches a check_coverage result)
+----------------------------------------------------------------------------
+DRAFT 1 of 1: supplier reply
+To: Victor Lindqvist <v.lindqvist@marlowmetal.example>
+About: Re: PO-5520 - BL-12 boilers - please choose a shipping option
+Review round 1: APPROVE
+  Reviewer:
+    APPROVE
+
+FINAL DRAFT (not sent - saved for a person to check)
+
+Subject: RE: PO-5520 - BL-12 boilers - please choose a shipping option
+
+Hi Victor,
+
+Thanks for flagging this. To confirm our understanding of the two options for PO-5520 (200 BL-12 boilers):
+
+- Option A: 80 units on the original schedule, remaining 120 units 14 days later. This leaves us short 5 units against one order, with a delay of about 4 days.
+- Option B: all 200 units shipped together, 6 days later than scheduled. This leaves us short 40 units against one order, with a delay of about 1 day.
+
+We're still reviewing which option works best on our end. Copperline will confirm our choice within the three business days you've given us.
+
+In the meantime, is there any way to ship more units sooner under either option — for example, a partial shipment ahead of the main batch? That would help reduce the impact on our side.
+
+Thanks for the heads-up and for working with us on this.
+
+Best regards,
+Purchasing, Copperline Coffee Machines
+
+Reviewer verdict: APPROVE
+Needs human review: false
+----------------------------------------------------------------------------
+HUMAN REVIEW
+Needs human review: true
+Reasons:
+  - decision for a person: Choose between Option A (risks order O-2205, Tall Pines Coffee House, 4 days late, 5 units short, late penalty applies) and Option B (risks order O-2203, Elm State University Dining, 1 day late, 40 units short, late penalty applies).
+  - decision for a person: Reply to Victor Lindqvist within three business days, or Marlow Metalworks will default to Option B.
+  - supplier asked: Which shipping option (A or B) would Copperline like for PO-5520?
+Nothing was sent. Every draft above is saved for a person to check.
+Model requested: claude-sonnet-5 | served: claude-sonnet-5 | API calls: 5 | tokens in/out: 12360/2713

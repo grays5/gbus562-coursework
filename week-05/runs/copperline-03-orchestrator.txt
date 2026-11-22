@@ -1,0 +1,160 @@
+SUPPLIER-RESPONSE TEAM RUN
+Organization: copperline-coffee
+Mode: orchestrator
+Model requested: claude-sonnet-5
+Run time (UTC): 2026-11-22T20:47:33+00:00
+============================================================================
+Organization: copperline-coffee
+Mode: orchestrator
+Email file: 03-ashgrove-burr-delay.eml
+From: Priya Raman <p.raman@ashgroveprecision.example>
+Subject: PO-5531 - BR-64 burr sets - arriving 3 days late
+----------------------------------------------------------------------------
+ORCHESTRATOR STEPS
+  1. run_supply_analyst()
+  2. draft_supplier_reply() -> reviewer APPROVE
+  3. finish(decision_needed=False)
+----------------------------------------------------------------------------
+SUPPLY ANALYST
+Analyst tool calls:
+  1. get_part({"part_id": "BR-64"})
+       {
+         "part_id": "BR-64",
+         "description": "64 mm burr set",
+         "on_hand": 70,
+         "supplier": "Ashgrove Precision",
+         "supplier_contact": {
+           "supplier": "Ashgrove Precision",
+           "contact_name": "Priya Raman",
+           "contact_email": "p.raman@ashgroveprecision.example",
+           "part_id": "BR-64"
+         },
+         "scheduled_deliveries": [
+           {
+             "po_number": "PO-5531",
+             "part_id": "BR-64",
+             "supplier": "Ashgrove Precision",
+             "qty": 120,
+             "arrives_in_days": 10
+           }
+         ],
+         "used_in": [
+           {
+             "product": "Grinder 64",
+             "per_unit": 1
+           }
+         ]
+       }
+  2. get_orders_for_part({"part_id": "BR-64"})
+       {
+         "part_id": "BR-64",
+         "orders": [
+           {
+             "order_id": "O-2206",
+             "customer": "Grindstone Coffee Bar",
+             "contact_email": "orders@grindstonecoffee.example",
+             "product": "Grinder 64",
+             "units": 30,
+             "ship_by_day": 8,
+             "late_penalty": false,
+             "per_unit": 1,
+             "parts_needed": 30
+           },
+           {
+             "order_id": "O-2207",
+             "customer": "Union Market Grocers",
+             "contact_email": "buying@unionmarketgrocers.example",
+             "product": "Grinder 64",
+             "units": 60,
+             "ship_by_day": 14,
+             "late_penalty": true,
+             "per_unit": 1,
+             "parts_needed": 60
+           },
+           {
+             "order_id": "O-2209",
+             "customer": "Saltmarsh Inn",
+             "contact_email": "frontdesk@saltmarshinn.example",
+             "product": "Grinder 64",
+             "units": 25,
+             "ship_by_day": 26,
+             "late_penalty": false,
+             "per_unit": 1,
+             "parts_needed": 25
+           }
+         ]
+       }
+  3. check_coverage({"part_id": "BR-64", "new_deliveries": [{"qty": 120, "arrives_in_days": 13}], "replaces_po": "PO-5531"})
+       {
+         "part_id": "BR-64",
+         "schedule_checked": "PO-5531 replaced by the new deliveries; other scheduled deliveries kept",
+         "on_hand": 70,
+         "deliveries": [
+           {
+             "arrives_in_days": 13,
+             "qty": 120
+           }
+         ],
+         "total_supply": 190,
+         "total_needed": 115,
+         "orders_at_risk": [],
+         "orders_covered_on_time": [
+           "O-2206",
+           "O-2207",
+           "O-2209"
+         ],
+         "notes": [
+           "units_short and parts_needed count parts, not finished products",
+           "ready_day null means no scheduled delivery covers the order",
+           "only this part is checked; days are counted from today (day 0)"
+         ]
+       }
+
+ANALYST BRIEF (full)
+{
+  "part_id": "BR-64",
+  "what_changed": "PO-5531 (120 BR-64 burr sets) will now arrive in 13 days from today instead of the originally scheduled 10 days.",
+  "orders_at_risk": [],
+  "options": [],
+  "decisions_for_a_person": [],
+  "supplier_questions": [
+    "Let them know if this causes any problems on our side."
+  ]
+}
+Brief checks: OK (fields complete; every at-risk number matches a check_coverage result)
+----------------------------------------------------------------------------
+DRAFT 1 of 1: supplier reply
+To: Priya Raman <p.raman@ashgroveprecision.example>
+About: Re: PO-5531 - BR-64 burr sets - arriving 3 days late
+Review round 1: APPROVE
+  Reviewer:
+    APPROVE
+
+FINAL DRAFT (not sent - saved for a person to check)
+
+Subject: RE: PO-5531 - BR-64 burr sets - arriving 3 days late
+
+Hello Priya,
+
+Thank you for the update. To confirm: PO-5531 (120 BR-64 burr sets) will now arrive in 13 days from today instead of the originally scheduled 10 days, with the full quantity shipping together.
+
+Based on current coverage, this delay does not put any orders at risk on our end.
+
+If there's any way to ship even partially sooner, that would help build in buffer — please let us know if that's possible.
+
+Best regards,
+Purchasing, Copperline Coffee Machines
+
+Reviewer verdict: APPROVE
+Needs human review: false
+----------------------------------------------------------------------------
+SUMMARY FOR THE PURCHASING MANAGER (from the orchestrator)
+Ashgrove Precision reported a 3-day delay on PO-5531 (120 BR-64 burr sets) due to an unplanned furnace repair, full quantity shipping together. The supply analyst checked current customer order coverage and found no orders at risk from this delay, so no customer notices were needed. A reply to the supplier has been drafted and reviewer-approved, confirming the delay is manageable on our side and asking if partial earlier shipment is possible for extra buffer. No decision is required from a person at this time; the drafted supplier reply is ready to send after a quick check.
+Decision needed by a person: no
+----------------------------------------------------------------------------
+HUMAN REVIEW
+Needs human review: true
+Reasons:
+  - supplier asked: Let them know if this causes any problems on our side.
+Nothing was sent. Every draft above is saved for a person to check.
+Model requested: claude-sonnet-5 | served: claude-sonnet-5 | API calls: 8 | tokens in/out: 13882/1414

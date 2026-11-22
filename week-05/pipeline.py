@@ -71,7 +71,7 @@ def human_review_reasons(run):
         for q in brief.get("supplier_questions") or []:
             reasons.append(f"supplier asked: {q}")
         for o in brief.get("orders_at_risk") or []:
-            if isinstance(o, dict) and str(o.get("late_penalty", "")).lower() in {"yes", "true"}:
+            if isinstance(o, dict) and sp._flag(o.get("late_penalty")):
                 reasons.append(f"order {o.get('order_id')} at risk has a late penalty")
     if run.decision_needed:
         reasons.append("the orchestrator reported that a person needs to make a decision")

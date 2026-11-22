@@ -203,13 +203,35 @@ def validate_brief(brief):
     return problems
 
 
-def _same(a, b):
+def _same_number(a, b):
+    """Exact whole-number match. null only matches null; true/false are not numbers."""
     if a is None or b is None:
         return a is None and b is None
+    if isinstance(a, bool) or isinstance(b, bool):
+        return False
     try:
-        return int(a) == int(b)
+        return int(a) == int(b) and float(a) == float(b)
     except (TypeError, ValueError):
-        return str(a).strip().lower() == str(b).strip().lower()
+        return False
+
+
+_YES, _NO = {"yes", "true"}, {"no", "false"}
+
+
+def _flag(value):
+    """A yes/no flag as the tools and the analyst write it: yes/no, true/false (JSON or text)."""
+    if isinstance(value, bool):
+        return value
+    text = str(value).strip().lower()
+    return True if text in _YES else False if text in _NO else None
+
+
+def _same_flag(a, b):
+    fa, fb = _flag(a), _flag(b)
+    return fa is not None and fa == fb
+
+
+NUMBER_FIELDS = ["units_short", "ship_day", "ready_day"]
 
 
 def matching_tool_entry(order, coverage_results):
@@ -217,8 +239,8 @@ def matching_tool_entry(order, coverage_results):
     for result in coverage_results:
         for entry in result.get("orders_at_risk", []):
             if (entry["order_id"] == str(order.get("order_id"))
-                    and all(_same(order.get(k), entry.get(k))
-                            for k in ["units_short", "ship_day", "ready_day", "late_penalty"])):
+                    and all(_same_number(order.get(k), entry.get(k)) for k in NUMBER_FIELDS)
+                    and _same_flag(order.get("late_penalty"), entry.get("late_penalty"))):
                 return entry
     return None
 
@@ -352,6 +374,7 @@ class DraftRecord:
     verdict: str           # APPROVE / REVISE / UNCLEAR / NOT REVIEWED
     rounds: list           # (draft, verdict, review_text)
     facts: str
+    late_penalty: bool = False   # set from orders data in code; never shown to the writer
 
     @property
     def no_reply(self):
@@ -364,11 +387,14 @@ class DraftRecord:
     def reasons(self):
         if self.no_reply:
             return []
-        if self.verdict == "APPROVE":
-            return []
+        reasons = []
+        if self.late_penalty:
+            reasons.append(f"{self.about} has a late penalty")
         if self.verdict == "UNCLEAR":
-            return ["the reviewer's answer did not start with APPROVE or REVISE"]
-        return [f"the reviewer still asked for revisions after {len(self.rounds)} round(s)"]
+            reasons.append("the reviewer's answer did not start with APPROVE or REVISE")
+        elif self.verdict != "APPROVE":
+            reasons.append(f"the reviewer still asked for revisions after {len(self.rounds)} round(s)")
+        return reasons
 
 
 async def draft_with_review(client, usage, prompts, writer, base_input, facts_text, audience, to, about):
@@ -398,5 +424,7 @@ async def write_customer_notice(client, usage, prompts, data, entry):
     order = data.orders_by_id[entry["order_id"]]
     to = f"{order['customer']} <{order['contact_email']}>" if order.get("contact_email") else order["customer"]
     base = customer_input(facts)
-    return await draft_with_review(client, usage, prompts, "customer-writer", base, base,
-                                   "customer", to, f"Order {order['order_id']}")
+    record = await draft_with_review(client, usage, prompts, "customer-writer", base, base,
+                                     "customer", to, f"Order {order['order_id']}")
+    record.late_penalty = bool(order.get("late_penalty"))
+    return record
