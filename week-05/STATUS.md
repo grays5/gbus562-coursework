@@ -78,6 +78,7 @@ All of these are repeated by `python week-05/check_offline.py --save` (37 checks
     - the brief has a problem, or its numbers don't match the tool output;
     - the brief lists `decisions_for_a_person` or `supplier_questions`;
     - an at-risk order has a late penalty;
+    - a customer notice is for an order with a late penalty (the draft's own flag is set from `orders.csv` in code, even when the reviewer approves it);
     - a draft wasn't approved;
     - the orchestrator reports a decision is needed, or stops without calling `finish`.
 

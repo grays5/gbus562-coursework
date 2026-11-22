@@ -31,12 +31,14 @@ D. Team code paths with a scripted stand-in for the API (no network, not model o
 [PASS] pipeline: 1 supplier reply + 2 customer notices drafted
 [PASS] pipeline: output has full brief, FINAL DRAFT and human-review line
 [PASS] pipeline: penalty order and supplier question force human review
+[PASS] pipeline: approved notice for a late-penalty order is still flagged for human review - O-2203: ['Order O-2203 has a late penalty'] | O-2204: []
 [PASS] pipeline: customer writer sees no supplier name or penalty - {"order_id": "O-2203", "customer": "Elm State University Dining", "product": "Cafe One", "quantity": 50, "planned_ship_day": 12, "expected_ship_day": 19, "days_later_than_planned": 7, "days_are_counted_from": "today (day 0)"}
 [PASS] pipeline: planted wrong number is caught (no notice for O-2204, run flagged) - customer notices drafted: ['Order O-2203']
 [PASS] orchestrator: brief checks pass when numbers match check_coverage - []
 [PASS] orchestrator: 1 supplier reply + 2 customer notices drafted
 [PASS] orchestrator: output has full brief, FINAL DRAFT and human-review line
 [PASS] orchestrator: penalty order and supplier question force human review
+[PASS] orchestrator: approved notice for a late-penalty order is still flagged for human review - O-2203: ['Order O-2203 has a late penalty'] | O-2204: []
 [PASS] orchestrator: customer writer sees no supplier name or penalty - {"order_id": "O-2203", "customer": "Elm State University Dining", "product": "Cafe One", "quantity": 50, "planned_ship_day": 12, "expected_ship_day": 19, "days_later_than_planned": 7, "days_are_counted_from": "today (day 0)"}
 [PASS] orchestrator: planted wrong number is caught (no notice for O-2204, run flagged) - customer notices drafted: ['Order O-2203']
 
@@ -47,4 +49,4 @@ E. Command-line behaviour without an API key
 [PASS] orchestrator.py --org copperline-coffee with no API key stops with a clear message - Error: no Anthropic API key found. Set ANTHROPIC_API_KEY in your shell (or in a .env file, which Git ignores) and run again.
 [PASS] unknown --email lists the available emails
 
-Result: 37 of 37 checks passed.
+Result: 39 of 39 checks passed.

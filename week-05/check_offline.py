@@ -212,6 +212,13 @@ async def check_team_code():
               and "Needs human review: true" in out)
         check(f"{mode}: penalty order and supplier question force human review",
               "O-2203 at risk has a late penalty" in out and "supplier asked" in out)
+        by_order = {d.about: d for d in notices}
+        check(f"{mode}: approved notice for a late-penalty order is still flagged for human review",
+              by_order["Order O-2203"].verdict == "APPROVE"
+              and by_order["Order O-2203"].needs_human_review
+              and "Order O-2203 has a late penalty" in by_order["Order O-2203"].reasons()
+              and not by_order["Order O-2204"].needs_human_review,
+              f"O-2203: {by_order['Order O-2203'].reasons()} | O-2204: {by_order['Order O-2204'].reasons()}")
         facts = json.loads(notices[0].facts.split("\n", 1)[1].rsplit("\n", 1)[0])
         check(f"{mode}: customer writer sees no supplier name or penalty",
               "Danforth" not in notices[0].facts and "penalty" not in notices[0].facts

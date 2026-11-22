@@ -352,6 +352,7 @@ class DraftRecord:
     verdict: str           # APPROVE / REVISE / UNCLEAR / NOT REVIEWED
     rounds: list           # (draft, verdict, review_text)
     facts: str
+    late_penalty: bool = False   # set from orders data in code; never shown to the writer
 
     @property
     def no_reply(self):
@@ -364,11 +365,14 @@ class DraftRecord:
     def reasons(self):
         if self.no_reply:
             return []
-        if self.verdict == "APPROVE":
-            return []
+        reasons = []
+        if self.late_penalty:
+            reasons.append(f"{self.about} has a late penalty")
         if self.verdict == "UNCLEAR":
-            return ["the reviewer's answer did not start with APPROVE or REVISE"]
-        return [f"the reviewer still asked for revisions after {len(self.rounds)} round(s)"]
+            reasons.append("the reviewer's answer did not start with APPROVE or REVISE")
+        elif self.verdict != "APPROVE":
+            reasons.append(f"the reviewer still asked for revisions after {len(self.rounds)} round(s)")
+        return reasons
 
 
 async def draft_with_review(client, usage, prompts, writer, base_input, facts_text, audience, to, about):
@@ -398,5 +402,7 @@ async def write_customer_notice(client, usage, prompts, data, entry):
     order = data.orders_by_id[entry["order_id"]]
     to = f"{order['customer']} <{order['contact_email']}>" if order.get("contact_email") else order["customer"]
     base = customer_input(facts)
-    return await draft_with_review(client, usage, prompts, "customer-writer", base, base,
-                                   "customer", to, f"Order {order['order_id']}")
+    record = await draft_with_review(client, usage, prompts, "customer-writer", base, base,
+                                     "customer", to, f"Order {order['order_id']}")
+    record.late_penalty = bool(order.get("late_penalty"))
+    return record
